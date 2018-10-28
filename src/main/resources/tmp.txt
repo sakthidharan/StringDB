@@ -1,4 +1,4 @@
-clpc1
+clpC1
 Mycobacterium tuberculosis H37Rv
 https://string-db.org/cgi/network.pl?taskId=l6bHtipvhhYn
 https://string-db.org/cgi/network.pl?taskId=KRokPsYOH4ny

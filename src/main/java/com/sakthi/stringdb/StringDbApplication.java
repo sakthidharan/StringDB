@@ -8,7 +8,7 @@ public class StringDbApplication {
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(StringDbWebBrowser.class);
 		app.setWebApplicationType(WebApplicationType.NONE);
-		app.run();
+		app.run(args);
 	}	
 	
 }
