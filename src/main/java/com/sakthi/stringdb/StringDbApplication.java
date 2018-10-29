@@ -9,6 +9,6 @@ public class StringDbApplication {
 		SpringApplication app = new SpringApplication(StringDbWebBrowser.class);
 		app.setWebApplicationType(WebApplicationType.NONE);
 		app.run(args);
-	}	
-	
+	}
+
 }
