@@ -6,10 +6,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.sakthi.stringdb.exception.NotThisPageException;
+import com.sakthi.stringdb.service.DataDownloader;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -18,6 +20,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class DataPage extends StringDbPage {
 
+	@Autowired
+	private DataDownloader dataDownloader;
+	
 	public DataPage(FirefoxDriver d, String organism) {
 		super(d, organism);
 	}
@@ -46,6 +51,7 @@ public class DataPage extends StringDbPage {
 					"#bottom_page_selector_table_container > div > div:nth-child(2) > div > div:nth-child(4) > div.cell.exporttablecolumn2 > a")
 					.getAttribute("href");
 			log.debug("TSV download link : {}", tsvDownloadLink);
+			dataDownloader.download(tsvDownloadLink);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 		}
