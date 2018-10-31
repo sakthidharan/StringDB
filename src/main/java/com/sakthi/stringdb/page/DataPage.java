@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.sakthi.stringdb.exception.NotThisPageException;
 import com.sakthi.stringdb.service.DataDownloader;
+import com.sakthi.stringdb.service.ProteinService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -22,6 +23,9 @@ public class DataPage extends StringDbPage {
 
 	@Autowired
 	private DataDownloader dataDownloader;
+	
+	@Autowired
+	private ProteinService proteinService;
 	
 	public DataPage(FirefoxDriver d, String organism) {
 		super(d, organism);
@@ -42,7 +46,9 @@ public class DataPage extends StringDbPage {
 			for (int index = 0; index < nodes.size(); index++) {
 				WebElement node = nodes.get(index);
 				WebElement textElem = node.findElement(By.tagName("text"));
-				log.debug("Node {} : {}", index, textElem.getText());
+				String pairedProteinName = textElem.getText();
+				log.debug("Node {} : {}", index, pairedProteinName);
+				proteinService.addOrderedPair(proteinName, pairedProteinName);
 			}
 			log.debug("About to click export button");
 			WebElement exportButton = d.findElementByCssSelector("#bottom_page_selector_table");
