@@ -11,17 +11,18 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein", columnNames = { "organism", "protein" }))
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein", columnNames = { "organism_id",
+		"protein_id" }))
 @Value
 @EqualsAndHashCode(callSuper = false)
-public class OrganismProteinExplored {
+public class OrganismProteinExplored extends RootModel {
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "organism_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_organismProtein_organism"), nullable = false)
 	private Organism organism;
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "protein_one_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_organismProtein_proteinOne"), nullable = false)
-	private Protein proteinOne;
+	@JoinColumn(name = "protein_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_organismProtein_proteinOne"), nullable = false)
+	private Protein protein;
 
 }

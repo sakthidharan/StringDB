@@ -11,8 +11,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein_ordered_pair", columnNames = { "organism",
-		"proteinOne", "proteinTwo" }))
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein_ordered_pair", columnNames = { "organism_id",
+		"protein_one_id", "protein_two_id" }))
 @Value
 @EqualsAndHashCode(callSuper = false)
 public class ProteinOrderedPair extends RootModel {
