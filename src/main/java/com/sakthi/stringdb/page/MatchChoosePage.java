@@ -46,22 +46,26 @@ public class MatchChoosePage extends StringDbPage {
 					log.debug("Found match. So breaking loop");
 					WebElement inputRadioButton = row.findElement(By.className("proceed_form_organism_column"))
 							.findElement(By.tagName("input"));
-					try {
-						inputRadioButton.click();
-					} catch (ElementClickInterceptedException e) {
-						log.debug("Radio button could not be clicked because it was obscured");
-					}
+					clickRadioButton(inputRadioButton);					
 					d.findElementByCssSelector("a.button:nth-child(15)").click();
 					break;
 				}
 			}
 			if (!matchFound) {
-				log.error("No match found in MatchChoosePage for protein {} in organism {}", proteinName, organism);
+				log.error("No match found in MatchChoosePage for protein {} in organism {}", proteinName, organismName);
 			}
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 		}
 		return matchFound;
+	}
+
+	private void clickRadioButton(WebElement inputRadioButton) {
+		try {
+			inputRadioButton.click();
+		} catch (ElementClickInterceptedException e) {
+			log.debug("Radio button could not be clicked because it was obscured");
+		}		
 	}
 
 }

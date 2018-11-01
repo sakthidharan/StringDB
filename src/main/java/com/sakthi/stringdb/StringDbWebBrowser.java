@@ -45,7 +45,7 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		if (!args.containsOption(ORGANISM_PROPERTY)) {
 			throw new ArgumentNotFoundException(ORGANISM_PROPERTY);
 		}
-		String organism = args.getOptionValues(ORGANISM_PROPERTY).get(0);
+		String organismName = args.getOptionValues(ORGANISM_PROPERTY).get(0);
 		log.debug("Starting application");
 		System.setProperty("webdriver.gecko.driver", geckoDriverLocation);
 		FirefoxBinary firefoxBinary = new FirefoxBinary();
@@ -55,7 +55,7 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		FirefoxDriver d = new FirefoxDriver(firefoxOptions);
 		d.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		genericAppCtx.registerBean(FirefoxDriver.class, () -> d);
-		genericAppCtx.registerBean(organism, String.class, () -> organism);
+		genericAppCtx.registerBean(organismName, String.class, () -> organismName);
 		SearchPage searchPage = genericAppCtx.getBean(SearchPage.class);
 		MatchChoosePage matchChoosePage = genericAppCtx.getBean(MatchChoosePage.class);
 		DataPage dataPage = genericAppCtx.getBean(DataPage.class);

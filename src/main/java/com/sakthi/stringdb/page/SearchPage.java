@@ -21,7 +21,7 @@ public class SearchPage extends StringDbPage {
 		log.debug("Title of this page is : {}", d.getTitle());
 		try {
 			d.findElementByCssSelector("#primary_input\\:single_identifier").sendKeys(proteinName);
-			d.findElementByCssSelector("#species_text_single_identifier").sendKeys(organism);
+			d.findElementByCssSelector("#species_text_single_identifier").sendKeys(organismName);
 			d.findElementByCssSelector("#input_form_single_identifier > div:nth-child(5) > a:nth-child(1)").click();
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());

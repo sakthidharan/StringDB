@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.opencsv.bean.CsvToBeanBuilder;
@@ -19,7 +20,10 @@ import lombok.extern.log4j.Log4j2;
 @Service
 public class DataDownloader {
 
-	public void download(String tsvDownloadLink) {
+	@Autowired
+	private ProteinService proteinService;
+
+	public void download(String tsvDownloadLink, String proteinName) {
 		Optional<URL> urlOpt = convertToUrl(tsvDownloadLink);
 		if (!urlOpt.isPresent()) {
 			return;
@@ -27,10 +31,13 @@ public class DataDownloader {
 		URL tsvDownloadURL = urlOpt.get();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(tsvDownloadURL.openStream()));
-			List<ProteinDataRecord> result = new CsvToBeanBuilder(in).withType(ProteinDataRecord.class).build().parse();
+			CsvToBeanBuilder<ProteinDataRecord> csvToBeanBuilder = new CsvToBeanBuilder<>(in);
+			List<ProteinDataRecord> proteinDataRecords = csvToBeanBuilder.withType(ProteinDataRecord.class).build()
+					.parse();
+			proteinService.saveDataRecordsForProtein(proteinName, proteinDataRecords);
 		} catch (IOException e) {
 			log.error("Error opening IO stream to tsvDownloadLink '{}' : '{}'", tsvDownloadURL.toString(),
-					e.getMessage());			
+					e.getMessage());
 		}
 	}
 

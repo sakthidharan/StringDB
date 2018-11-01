@@ -8,11 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_protein_name", columnNames = { "name" }))
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_name", columnNames = { "name" }))
 @Value
 @EqualsAndHashCode(callSuper = false)
-public class Protein extends RootModel {
+public class Organism extends RootModel {
 
 	private String name;
-
 }

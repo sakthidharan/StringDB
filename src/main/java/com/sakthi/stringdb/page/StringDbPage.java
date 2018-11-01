@@ -6,10 +6,10 @@ public abstract class StringDbPage {
 	
 	protected FirefoxDriver d;
 
-	protected String organism;
+	protected String organismName;
 
 	public StringDbPage(FirefoxDriver d, String organism) {
 		this.d = d;
-		this.organism = organism;
+		this.organismName = organism;
 	}
 }
