@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import com.sakthi.stringdb.exception.NotThisPageException;
-import com.sakthi.stringdb.service.DataDownloader;
+import com.sakthi.stringdb.service.DataExtractor;
 import com.sakthi.stringdb.service.ProteinService;
 
 import lombok.extern.log4j.Log4j2;
@@ -22,11 +22,11 @@ import lombok.extern.log4j.Log4j2;
 public class DataPage extends StringDbPage {
 
 	@Autowired
-	private DataDownloader dataDownloader;
-	
+	private DataExtractor dataExtractor;
+
 	@Autowired
 	private ProteinService proteinService;
-	
+
 	public DataPage(FirefoxDriver d, String organism) {
 		super(d, organism);
 	}
@@ -53,11 +53,12 @@ public class DataPage extends StringDbPage {
 			log.debug("About to click export button");
 			WebElement exportButton = d.findElementByCssSelector("#bottom_page_selector_table");
 			exportButton.click();
-			String tsvDownloadLink = d.findElementByCssSelector(
-					"#bottom_page_selector_table_container > div > div:nth-child(2) > div > div:nth-child(4) > div.cell.exporttablecolumn2 > a")
-					.getAttribute("href");
+			WebElement downloadLinkElement = d.findElementByCssSelector(
+					"#bottom_page_selector_table_container > div > div:nth-child(2) > div > div:nth-child(4) > div.cell.exporttablecolumn2 > a");
+			String tsvDownloadLink = downloadLinkElement.getAttribute("href");
 			log.debug("TSV download link : {}", tsvDownloadLink);
-			dataDownloader.download(tsvDownloadLink, proteinName);
+			downloadLinkElement.click();
+			dataExtractor.extract(tsvDownloadLink, proteinName);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 		}

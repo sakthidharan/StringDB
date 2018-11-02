@@ -11,17 +11,18 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.sakthi.stringdb.model.Organism;
+import com.sakthi.stringdb.model.OrganismProteinExplored;
 import com.sakthi.stringdb.model.Protein;
 import com.sakthi.stringdb.model.ProteinDataRecord;
-import com.sakthi.stringdb.model.ProteinOrderedPair;
 import com.sakthi.stringdb.model.QProtein;
+import com.sakthi.stringdb.repository.OrganismProteinExploredRepository;
 import com.sakthi.stringdb.repository.ProteinDataRecordRepository;
-import com.sakthi.stringdb.repository.ProteinOrderedPairRepository;
 import com.sakthi.stringdb.repository.ProteinRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -37,16 +38,19 @@ public class ProteinService {
 	private ProteinRepository proteinRepo;
 
 	@Autowired
-	private ProteinOrderedPairRepository proteinOrderedPairRepo;
-
-	@Autowired
 	private ProteinDataRecordRepository proteinDataRecRepo;
 
+	@Autowired
+	private OrganismProteinExploredRepository orgPrtExploredRepo;
+	
 	@Autowired
 	private TransactionTemplate txnTemplate;
 
 	@Autowired
 	private GenericApplicationContext genericAppCtx;
+
+	@Autowired
+	private ProteinOrderedPairService proteinOrderedPairService;
 
 	@PostConstruct
 	public void afterPropertiesSet() {
@@ -63,20 +67,28 @@ public class ProteinService {
 		QProtein qp = QProtein.protein;
 		TransactionCallback<Protein> createProteinOne = txnStatus -> proteinRepo.save(new Protein(proteinOneName));
 		TransactionCallback<Protein> createProteinTwo = txnStatus -> proteinRepo.save(new Protein(proteinTwoName));
-		Protein proteinOne = proteinRepo.findOne(qp.name.eq(proteinOneName))
-				.orElse(txnTemplate.execute(createProteinOne));
-		Protein proteinTwo = proteinRepo.findOne(qp.name.eq(proteinTwoName))
-				.orElse(txnTemplate.execute(createProteinTwo));
-		TransactionCallback<ProteinOrderedPair> createProteinOrderedPair = txnStatus -> proteinOrderedPairRepo
-				.save(new ProteinOrderedPair(organism, proteinOne, proteinTwo));
+		Optional<Protein> proteinOneOpt = proteinRepo.findOne(qp.name.eq(proteinOneName));
+		Protein proteinOne = null;
+		if (proteinOneOpt.isPresent()) {
+			proteinOne = proteinOneOpt.get();
+		} else {
+			proteinOne = txnTemplate.execute(createProteinOne);
+		}
+		Optional<Protein> proteinTwoOpt = proteinRepo.findOne(qp.name.eq(proteinTwoName));
+		Protein proteinTwo = null;
+		if (proteinTwoOpt.isPresent()) {
+			proteinTwo = proteinTwoOpt.get();
+		} else {
+			proteinTwo = txnTemplate.execute(createProteinTwo);
+		}
 		try {
-			txnTemplate.execute(createProteinOrderedPair);
+			proteinOrderedPairService.create(organism, proteinOne, proteinTwo);
 		} catch (DataIntegrityViolationException | PersistenceException e) {
 			log.debug("Protein Ordered Pair ({},{}) already exists.", proteinOneName, proteinTwoName);
 		}
 	}
 
-	@Transactional(readOnly = false, rollbackFor = Exception.class)
+	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
 	public void saveDataRecordsForProtein(String proteinName, List<ProteinDataRecord> proteinDataRecords) {
 		if (organismService == null) {
 			organismService = genericAppCtx.getBean(OrganismService.class);
@@ -91,7 +103,22 @@ public class ProteinService {
 				proteinDataRecRepo.save(proteinDataRecord);
 			}
 		} else {
-			log.error("Protein '{}' Not found when about to save it's data record", proteinName);
+			log.error("Protein '{}' Not found when it's data record was about to be saved.", proteinName);
+		}
+	}
+
+	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+	public void markProteinAsExplored(String proteinName) {
+		if (organismService == null) {
+			organismService = genericAppCtx.getBean(OrganismService.class);
+		}
+		Organism organism = organismService.getCurrentOrganism();
+		QProtein qp = QProtein.protein;
+		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
+		if (proteinOpt.isPresent()) {
+			orgPrtExploredRepo.save(new OrganismProteinExplored(organism, proteinOpt.get()));
+		}else {
+			log.error("Protein '{}' Not found when it was about to be marked as explored.", proteinName);
 		}
 	}
 

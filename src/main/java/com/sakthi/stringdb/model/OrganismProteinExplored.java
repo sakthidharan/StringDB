@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein", columnNames = { "organism_id",
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein_explored", columnNames = { "organism_id",
 		"protein_id" }))
 @Value
 @EqualsAndHashCode(callSuper = false)
