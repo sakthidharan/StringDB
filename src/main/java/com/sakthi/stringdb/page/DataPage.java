@@ -59,6 +59,7 @@ public class DataPage extends StringDbPage {
 			log.debug("TSV download link : {}", tsvDownloadLink);
 			downloadLinkElement.click();
 			dataExtractor.extract(tsvDownloadLink, proteinName);
+			d.findElementByCssSelector("#search").click();
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 		}

@@ -1,5 +1,6 @@
 package com.sakthi.stringdb.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -13,5 +14,6 @@ import lombok.Value;
 @EqualsAndHashCode(callSuper = false)
 public class Organism extends RootModel {
 
+	@Column(nullable = false)
 	private String name;
 }

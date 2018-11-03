@@ -4,10 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,19 +59,28 @@ public class DataExtractor {
 			mappingStrategy.setType(ProteinDataRecord.class);
 			CsvToBean<ProteinDataRecord> csvToBean = csvToBeanBuilder.withType(ProteinDataRecord.class)
 					.withMappingStrategy(mappingStrategy).build();
-			proteinDataRecords = csvToBean.parse();			
+			proteinDataRecords = csvToBean.parse();
+			in.close();
 		} catch (FileNotFoundException e) {
 			log.error("TSV File '{}' is not found. Exception is : '{}'", tsvFile.getAbsolutePath(), e.getMessage());
+		} catch (IOException e) {
+			log.error("Could not close TSV file. Exception is : '{}'", e.getMessage());
 		}
 		try {
 			proteinService.saveDataRecordsForProtein(proteinName, proteinDataRecords);
-		}catch(PersistenceException | DataIntegrityViolationException e) {
+		} catch (PersistenceException | DataIntegrityViolationException e) {
 			log.debug("Could not save data record for protein '{}'", proteinName);
 		}
+//		try {
+//			proteinService.markProteinAsExplored(proteinName);
+//		} catch (PersistenceException | DataIntegrityViolationException e) {
+//			log.error("Could not mark protein '{}' as explored.", proteinName);
+//		}
 		try {
-			proteinService.markProteinAsExplored(proteinName);
-		}catch(PersistenceException | DataIntegrityViolationException e) {
-			log.error("Could not mark protein '{}' as explored.", proteinName);
+			Files.delete(tsvFile.toPath());
+		} catch (IOException e) {
+			log.fatal("Could NOT delete TSV file '{}'", tsvFile.toPath().toString());
+			throw new RuntimeException(e);
 		}
 	}
 

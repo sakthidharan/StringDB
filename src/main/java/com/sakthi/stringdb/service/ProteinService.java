@@ -23,6 +23,7 @@ import com.sakthi.stringdb.model.Organism;
 import com.sakthi.stringdb.model.OrganismProtein;
 import com.sakthi.stringdb.model.Protein;
 import com.sakthi.stringdb.model.ProteinDataRecord;
+import com.sakthi.stringdb.model.ProteinOrderedPair;
 import com.sakthi.stringdb.model.QOrganismProtein;
 import com.sakthi.stringdb.model.QProtein;
 import com.sakthi.stringdb.model.QProteinOrderedPair;
@@ -58,7 +59,7 @@ public class ProteinService {
 
 	@PersistenceContext
 	private EntityManager entityManager;
-	
+
 	@PostConstruct
 	public void afterPropertiesSet() {
 		txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -70,7 +71,6 @@ public class ProteinService {
 			organismService = genericAppCtx.getBean(OrganismService.class);
 		}
 		Organism organism = organismService.getCurrentOrganism();
-
 		QProtein qp = QProtein.protein;
 		TransactionCallback<Protein> createProteinOne = txnStatus -> proteinRepo.save(new Protein(proteinOneName));
 		TransactionCallback<Protein> createProteinTwo = txnStatus -> proteinRepo.save(new Protein(proteinTwoName));
@@ -121,30 +121,38 @@ public class ProteinService {
 		}
 	}
 
-	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-	public void markProteinAsExplored(String proteinName) {
+//	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
+//	public void markProteinAsExplored(String proteinName) {
+//		if (organismService == null) {
+//			organismService = genericAppCtx.getBean(OrganismService.class);
+//		}
+//		Organism organism = organismService.getCurrentOrganism();
+//		QProtein qp = QProtein.protein;
+//		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
+//		if (proteinOpt.isPresent()) {
+//			organismProteinService.create(organism, proteinOpt.get());
+//		} else {
+//			log.error("Protein '{}' Not found when it was about to be marked as explored.", proteinName);
+//		}
+//	}
+
+	@Transactional(readOnly = true)
+	public Optional<String> getNextUnexploredProteinName() {
 		if (organismService == null) {
 			organismService = genericAppCtx.getBean(OrganismService.class);
 		}
 		Organism organism = organismService.getCurrentOrganism();
-		QProtein qp = QProtein.protein;
-		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
-		if (proteinOpt.isPresent()) {
-			organismProteinService.create(organism, proteinOpt.get());
-		} else {
-			log.error("Protein '{}' Not found when it was about to be marked as explored.", proteinName);
-		}
-	}
-
-	@Transactional(readOnly = true)
-	public Optional<String> getNextUnexploredProteinName() {
 		QOrganismProtein qop = QOrganismProtein.organismProtein;
 		QProteinOrderedPair qPair = QProteinOrderedPair.proteinOrderedPair;
 		JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-
-		//need organism
-		queryFactory.selectFrom(qPair).leftJoin(qPair.proteinTwo, qop.protein);		
-		return null;
+		Optional<ProteinOrderedPair> proteinOrderedPairOpt = Optional.ofNullable(queryFactory.selectFrom(qPair)
+				.leftJoin(qop).on(qPair.proteinTwo.eq(qop.protein).and(qPair.organism.eq(qop.organism)))
+				.where(qop.protein.isNull().and(qPair.organism.eq(organism))).fetchFirst());
+		if (proteinOrderedPairOpt.isPresent()) {
+			return Optional.of(proteinOrderedPairOpt.get().getProteinTwo().getName());
+		} else {
+			return Optional.empty();
+		}
 	}
 
 }
