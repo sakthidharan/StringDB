@@ -11,11 +11,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Value;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein_explored", columnNames = { "organism_id",
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_organism_protein", columnNames = { "organism_id",
 		"protein_id" }))
 @Value
 @EqualsAndHashCode(callSuper = false)
-public class OrganismProteinExplored extends RootModel {
+public class OrganismProtein extends RootModel {
 
 	@ManyToOne(optional = false)
 	@JoinColumn(name = "organism_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_organismProtein_organism"), nullable = false)

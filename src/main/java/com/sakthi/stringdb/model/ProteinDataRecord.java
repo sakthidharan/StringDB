@@ -4,8 +4,6 @@ import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 
 import com.opencsv.bean.CsvBindByName;
 
@@ -14,20 +12,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(name = "unique_data_record_for_organism_protein", columnNames = {
-		"organism_id", "protein_id" }))
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class ProteinDataRecord extends RootModel {
 
 	@ManyToOne(optional = false)
-	@JoinColumn(name = "organism_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_proteinDataRecord_organism"), nullable = false)
-	private Organism organism;
-
-	@ManyToOne(optional = false)
-	@JoinColumn(name = "protein_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_proteinDataRecord_protein"), nullable = false)
-	private Protein protein;
+	@JoinColumn(name = "organism_protein_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_proteinDataRecord_organismProtein"), nullable = false)
+	private OrganismProtein organismProtein;
 
 	@CsvBindByName(column = "#node1")
 	private String node1;

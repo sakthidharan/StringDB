@@ -1,5 +1,6 @@
 package com.sakthi.stringdb;
 
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.firefox.FirefoxBinary;
@@ -17,6 +18,7 @@ import com.sakthi.stringdb.exception.NotThisPageException;
 import com.sakthi.stringdb.page.DataPage;
 import com.sakthi.stringdb.page.MatchChoosePage;
 import com.sakthi.stringdb.page.SearchPage;
+import com.sakthi.stringdb.service.ProteinService;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -32,6 +34,9 @@ public class StringDbWebBrowser implements ApplicationRunner {
 
 	@Autowired
 	private GenericApplicationContext genericAppCtx;
+
+	@Autowired
+	private ProteinService proteinService;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
@@ -74,18 +79,23 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		SearchPage searchPage = genericAppCtx.getBean(SearchPage.class);
 		MatchChoosePage matchChoosePage = genericAppCtx.getBean(MatchChoosePage.class);
 		DataPage dataPage = genericAppCtx.getBean(DataPage.class);
-		searchPage.search(proteinName);
-		try {
-			matchChoosePage.choose(proteinName);
-		} catch (NotThisPageException e) {
-			log.error(e.getMessage());
-		}
-		try {
-			dataPage.extractData(proteinName);
-		} catch (NotThisPageException e) {
-			log.error(e.getMessage());
-			d.quit();
-		}
+		Optional<String> nextProteinNameOpt = Optional.of(proteinName);
+		do {
+			proteinName = nextProteinNameOpt.get();
+			searchPage.search(proteinName);
+			try {
+				matchChoosePage.choose(proteinName);
+			} catch (NotThisPageException e) {
+				log.error(e.getMessage());
+			}
+			try {
+				dataPage.extractData(proteinName);
+			} catch (NotThisPageException e) {
+				log.error(e.getMessage());				
+				break;
+			}
+			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
+		} while (nextProteinNameOpt.isPresent());
 		d.quit();
 	}
 

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +18,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sakthi.stringdb.model.Organism;
-import com.sakthi.stringdb.model.OrganismProteinExplored;
+import com.sakthi.stringdb.model.OrganismProtein;
 import com.sakthi.stringdb.model.Protein;
 import com.sakthi.stringdb.model.ProteinDataRecord;
+import com.sakthi.stringdb.model.QOrganismProtein;
 import com.sakthi.stringdb.model.QProtein;
-import com.sakthi.stringdb.repository.OrganismProteinExploredRepository;
+import com.sakthi.stringdb.model.QProteinOrderedPair;
 import com.sakthi.stringdb.repository.ProteinDataRecordRepository;
 import com.sakthi.stringdb.repository.ProteinRepository;
 
@@ -41,9 +45,6 @@ public class ProteinService {
 	private ProteinDataRecordRepository proteinDataRecRepo;
 
 	@Autowired
-	private OrganismProteinExploredRepository orgPrtExploredRepo;
-	
-	@Autowired
 	private TransactionTemplate txnTemplate;
 
 	@Autowired
@@ -52,6 +53,12 @@ public class ProteinService {
 	@Autowired
 	private ProteinOrderedPairService proteinOrderedPairService;
 
+	@Autowired
+	private OrganismProteinService organismProteinService;
+
+	@PersistenceContext
+	private EntityManager entityManager;
+	
 	@PostConstruct
 	public void afterPropertiesSet() {
 		txnTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
@@ -98,8 +105,15 @@ public class ProteinService {
 		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
 		if (proteinOpt.isPresent()) {
 			for (ProteinDataRecord proteinDataRecord : proteinDataRecords) {
-				proteinDataRecord.setProtein(proteinOpt.get());
-				proteinDataRecord.setOrganism(organism);
+				Optional<OrganismProtein> orgPrtOpt = organismProteinService.findByOrganismAndProtein(organism,
+						proteinOpt.get());
+				OrganismProtein orgPrt = null;
+				if (orgPrtOpt.isPresent()) {
+					orgPrt = orgPrtOpt.get();
+				} else {
+					orgPrt = organismProteinService.create(organism, proteinOpt.get());
+				}
+				proteinDataRecord.setOrganismProtein(orgPrt);
 				proteinDataRecRepo.save(proteinDataRecord);
 			}
 		} else {
@@ -116,10 +130,21 @@ public class ProteinService {
 		QProtein qp = QProtein.protein;
 		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
 		if (proteinOpt.isPresent()) {
-			orgPrtExploredRepo.save(new OrganismProteinExplored(organism, proteinOpt.get()));
-		}else {
+			organismProteinService.create(organism, proteinOpt.get());
+		} else {
 			log.error("Protein '{}' Not found when it was about to be marked as explored.", proteinName);
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<String> getNextUnexploredProteinName() {
+		QOrganismProtein qop = QOrganismProtein.organismProtein;
+		QProteinOrderedPair qPair = QProteinOrderedPair.proteinOrderedPair;
+		JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+
+		//need organism
+		queryFactory.selectFrom(qPair).leftJoin(qPair.proteinTwo, qop.protein);		
+		return null;
 	}
 
 }
