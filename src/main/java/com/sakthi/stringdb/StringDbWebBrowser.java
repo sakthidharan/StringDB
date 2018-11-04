@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -25,9 +26,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class StringDbWebBrowser implements ApplicationRunner {
 
-	private static final String GECKO_DRIVER_LOCATION_PROPERTY = "gecko.driver.location";
-
-	private static final String PROTEIN_NAME_PROPERTY = "protein.name";
+	private static final String START_PROTEIN_NAME_PROPERTY = "start.protein.name";
 
 	private static final String ORGANISM_PROPERTY = "organism";
 
@@ -42,17 +41,16 @@ public class StringDbWebBrowser implements ApplicationRunner {
 
 	@Autowired
 	private FirefoxOptions firefoxOptions;
+	
+	@Value("${firefox.gecko.driver.location}")
+	private String geckoDriverLocation;
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
-		if (!args.containsOption(GECKO_DRIVER_LOCATION_PROPERTY)) {
-			throw new ArgumentNotFoundException(GECKO_DRIVER_LOCATION_PROPERTY);
+		if (!args.containsOption(START_PROTEIN_NAME_PROPERTY)) {
+			throw new ArgumentNotFoundException(START_PROTEIN_NAME_PROPERTY);
 		}
-		String geckoDriverLocation = args.getOptionValues(GECKO_DRIVER_LOCATION_PROPERTY).get(0);
-		if (!args.containsOption(PROTEIN_NAME_PROPERTY)) {
-			throw new ArgumentNotFoundException(PROTEIN_NAME_PROPERTY);
-		}
-		String proteinName = args.getOptionValues(PROTEIN_NAME_PROPERTY).get(0);
+		String proteinName = args.getOptionValues(START_PROTEIN_NAME_PROPERTY).get(0);
 		if (!args.containsOption(ORGANISM_PROPERTY)) {
 			throw new ArgumentNotFoundException(ORGANISM_PROPERTY);
 		}

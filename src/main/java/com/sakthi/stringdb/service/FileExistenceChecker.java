@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.log4j.Log4j2;
@@ -16,6 +17,9 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Log4j2
 public class FileExistenceChecker {
+
+	@Value("${tsv.download.directory}")
+	private String tsvDownloadDirectory;
 
 	public Optional<File> checkWithMaxWaitTime(String tsvDownloadLink, int maxWaitTimeSeconds) {
 		Optional<URI> uriOpt = convertToUri(tsvDownloadLink);
@@ -29,7 +33,7 @@ public class FileExistenceChecker {
 			return Optional.empty();
 		}
 		String tsvFileName = nvpOpt.get().getValue();
-		File tsvFile = Paths.get("C:\\Users\\COMPUTER\\Downloads", tsvFileName).toFile();
+		File tsvFile = Paths.get(tsvDownloadDirectory, tsvFileName).toFile();
 		int totalWaitTimeSeconds = 0;
 		while (totalWaitTimeSeconds <= maxWaitTimeSeconds) {
 			if (tsvFile.exists()) {
