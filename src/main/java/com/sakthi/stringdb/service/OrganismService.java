@@ -1,5 +1,7 @@
 package com.sakthi.stringdb.service;
 
+import java.util.Optional;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +57,14 @@ public class OrganismService {
 	}
 
 	private Organism createOrGet(String orgName) {
-		QOrganism qOrg = QOrganism.organism;
-		TransactionCallback<Organism> createOrganism = txnStatus -> organismRepo.save(new Organism(orgName));
-		return organismRepo.findOne(qOrg.name.eq(organismName)).orElse(txnTemplate.execute(createOrganism));
+		QOrganism qOrg = QOrganism.organism;		
+		Optional<Organism> orgOpt = organismRepo.findOne(qOrg.name.eq(organismName));
+		if(!orgOpt.isPresent()) {
+			TransactionCallback<Organism> createOrganism = txnStatus -> organismRepo.save(new Organism(orgName));
+			return txnTemplate.execute(createOrganism);
+		}else {
+			return orgOpt.get();
+		}		
 	}
 
 	@Transactional(readOnly=true)
