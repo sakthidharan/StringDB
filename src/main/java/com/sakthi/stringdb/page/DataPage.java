@@ -34,6 +34,7 @@ public class DataPage extends StringDbPage {
 	}
 
 	public void extractData(String proteinName) {
+		waitUntilFullPageIsLoaded();
 		StringBuilder dataPageTitleContent = new StringBuilder();
 		dataPageTitleContent.append(proteinName).append(" protein (").append(organismName)
 				.append(") - STRING interaction network");

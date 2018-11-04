@@ -22,6 +22,7 @@ public class SearchPage extends StringDbPage {
 	}
 
 	public void search(String proteinName) {
+		waitUntilFullPageIsLoaded();
 		String searchPageTitleContent = "functional protein association networks";
 		if (!d.getTitle().contains(searchPageTitleContent)) {
 			throw new NotThisPageException("This is not the starting Search page. Protein is " + proteinName);

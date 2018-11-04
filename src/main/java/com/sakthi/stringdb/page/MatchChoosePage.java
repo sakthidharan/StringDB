@@ -26,6 +26,7 @@ public class MatchChoosePage extends StringDbPage {
 	}
 
 	public boolean choose(String proteinName) {
+		waitUntilFullPageIsLoaded();
 		StringBuilder matchChoosePageTitleContent = new StringBuilder();
 		matchChoosePageTitleContent.append(proteinName).append(" - STRING protein network");
 		if (!d.getTitle().contains(matchChoosePageTitleContent.toString())) {
