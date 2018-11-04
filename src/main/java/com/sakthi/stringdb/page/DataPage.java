@@ -27,12 +27,11 @@ public class DataPage extends StringDbPage {
 	@Autowired
 	private ProteinService proteinService;
 
-	public DataPage(FirefoxDriver d, String organism) {
-		super(d, organism);
+	public DataPage(FirefoxDriver d, String organism, String jsClickElement) {
+		super(d, organism, jsClickElement);
 	}
 
 	public void extractData(String proteinName) {
-		log.debug("Title of this page is : {}", d.getTitle());
 		StringBuilder dataPageTitleContent = new StringBuilder();
 		dataPageTitleContent.append(proteinName).append(" protein (").append(organismName)
 				.append(") - STRING interaction network");
@@ -52,14 +51,15 @@ public class DataPage extends StringDbPage {
 			}
 			log.debug("About to click export button");
 			WebElement exportButton = d.findElementByCssSelector("#bottom_page_selector_table");
-			exportButton.click();
+			d.executeScript(jsClickElement, exportButton);
 			WebElement downloadLinkElement = d.findElementByCssSelector(
 					"#bottom_page_selector_table_container > div > div:nth-child(2) > div > div:nth-child(4) > div.cell.exporttablecolumn2 > a");
 			String tsvDownloadLink = downloadLinkElement.getAttribute("href");
 			log.debug("TSV download link : {}", tsvDownloadLink);
-			downloadLinkElement.click();
+			d.executeScript(jsClickElement, downloadLinkElement);
 			dataExtractor.extract(tsvDownloadLink, proteinName);
-			d.findElementByCssSelector("#search").click();
+			WebElement goBackToSearchPage = d.findElementByCssSelector("#search");
+			d.executeScript(jsClickElement, goBackToSearchPage);
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
 		}

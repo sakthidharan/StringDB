@@ -59,12 +59,18 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		d.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		genericAppCtx.registerBean(FirefoxDriver.class, () -> d);
 		genericAppCtx.registerBean(ORGANISM_PROPERTY, String.class, () -> organismName);
+		genericAppCtx.registerBean("jsClickElement", String.class, () -> "arguments[0].click();");
 		SearchPage searchPage = genericAppCtx.getBean(SearchPage.class);
 		MatchChoosePage matchChoosePage = genericAppCtx.getBean(MatchChoosePage.class);
 		DataPage dataPage = genericAppCtx.getBean(DataPage.class);
-		Optional<String> nextProteinNameOpt = Optional.of(proteinName);
+		Optional<String> nextProteinNameOpt = null;
+		if (proteinService.proteinAlreadyExists(proteinName)) {
+			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
+		} else {
+			nextProteinNameOpt = Optional.of(proteinName);
+		}
 		d.get("https://string-db.org/cgi/input.pl?input_page_show_search=on");
-		do {
+		while (nextProteinNameOpt.isPresent()) {
 			proteinName = nextProteinNameOpt.get();
 			try {
 				searchPage.search(proteinName);
@@ -82,7 +88,7 @@ public class StringDbWebBrowser implements ApplicationRunner {
 				break;
 			}
 			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
-		} while (nextProteinNameOpt.isPresent());
+		}
 		d.quit();
 	}
 

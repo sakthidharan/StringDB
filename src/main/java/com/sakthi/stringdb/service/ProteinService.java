@@ -121,21 +121,6 @@ public class ProteinService {
 		}
 	}
 
-//	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-//	public void markProteinAsExplored(String proteinName) {
-//		if (organismService == null) {
-//			organismService = genericAppCtx.getBean(OrganismService.class);
-//		}
-//		Organism organism = organismService.getCurrentOrganism();
-//		QProtein qp = QProtein.protein;
-//		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
-//		if (proteinOpt.isPresent()) {
-//			organismProteinService.create(organism, proteinOpt.get());
-//		} else {
-//			log.error("Protein '{}' Not found when it was about to be marked as explored.", proteinName);
-//		}
-//	}
-
 	@Transactional(readOnly = true)
 	public Optional<String> getNextUnexploredProteinName() {
 		if (organismService == null) {
@@ -153,6 +138,12 @@ public class ProteinService {
 		} else {
 			return Optional.empty();
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public boolean proteinAlreadyExists(String proteinName) {
+		QProtein qp = QProtein.protein;
+		return proteinRepo.exists(qp.name.eq(proteinName));
 	}
 
 }

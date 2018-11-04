@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
+import com.sakthi.stringdb.exception.CouldNotDeleteTsvFileException;
 import com.sakthi.stringdb.model.ProteinDataRecord;
 
 import lombok.extern.log4j.Log4j2;
@@ -71,16 +72,11 @@ public class DataExtractor {
 		} catch (PersistenceException | DataIntegrityViolationException e) {
 			log.debug("Could not save data record for protein '{}'", proteinName);
 		}
-//		try {
-//			proteinService.markProteinAsExplored(proteinName);
-//		} catch (PersistenceException | DataIntegrityViolationException e) {
-//			log.error("Could not mark protein '{}' as explored.", proteinName);
-//		}
 		try {
 			Files.delete(tsvFile.toPath());
 		} catch (IOException e) {
 			log.fatal("Could NOT delete TSV file '{}'", tsvFile.toPath().toString());
-			throw new RuntimeException(e);
+			throw new CouldNotDeleteTsvFileException(tsvFile.toPath().toString());
 		}
 	}
 
