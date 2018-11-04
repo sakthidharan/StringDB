@@ -7,6 +7,7 @@ import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +20,9 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class MatchChoosePage extends StringDbPage {
 
-	public MatchChoosePage(FirefoxDriver d, String organism, String jsClickElement) {
-		super(d, organism, jsClickElement);
+	public MatchChoosePage(FirefoxDriver d, @Qualifier("organismName") String organismName,
+			@Qualifier("jsClickElement") String jsClickElement) {
+		super(d, organismName, jsClickElement);
 	}
 
 	public boolean choose(String proteinName) {
@@ -44,7 +46,8 @@ public class MatchChoosePage extends StringDbPage {
 							.findElement(By.tagName("input"));
 					clickRadioButton(inputRadioButton);
 					WebElement continueToDataPage = d.findElementByCssSelector("a.button:nth-child(15)");
-					d.executeScript(jsClickElement, continueToDataPage);
+					continueToDataPage.click();
+					log.debug("Clicked continue to data page button");
 					break;
 				}
 			}
@@ -59,7 +62,7 @@ public class MatchChoosePage extends StringDbPage {
 
 	private void clickRadioButton(WebElement inputRadioButton) {
 		try {
-			inputRadioButton.click();			
+			inputRadioButton.click();
 		} catch (ElementClickInterceptedException e) {
 			log.debug("Radio button could not be clicked because it was obscured");
 		}

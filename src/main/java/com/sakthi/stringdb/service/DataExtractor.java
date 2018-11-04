@@ -6,19 +6,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import javax.persistence.PersistenceException;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -27,6 +21,7 @@ import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import com.sakthi.stringdb.exception.CouldNotDeleteTsvFileException;
+import com.sakthi.stringdb.exception.TSVFileNotFoundException;
 import com.sakthi.stringdb.model.ProteinDataRecord;
 
 import lombok.extern.log4j.Log4j2;
@@ -38,19 +33,15 @@ public class DataExtractor {
 	@Autowired
 	private ProteinService proteinService;
 
+	@Autowired
+	private FileExistenceChecker fileExistenceChecker;
+
 	public void extract(String tsvDownloadLink, String proteinName) {
-		Optional<URI> uriOpt = convertToUri(tsvDownloadLink);
-		if (!uriOpt.isPresent()) {
-			return;
+		Optional<File> tsvFileOpt = fileExistenceChecker.checkWithMaxWaitTime(tsvDownloadLink, 60);
+		if (!tsvFileOpt.isPresent()) {
+			throw new TSVFileNotFoundException();
 		}
-		Optional<NameValuePair> nvpOpt = URLEncodedUtils.parse(uriOpt.get(), Charset.forName("UTF-8")).stream()
-				.filter(nvp -> nvp.getName().equals("download_file_name")).findFirst();
-		if (!nvpOpt.isPresent()) {
-			log.error("Key 'download_file_name' not found in query string of tsvDownloadLink '{}'", tsvDownloadLink);
-			return;
-		}
-		String tsvFileName = nvpOpt.get().getValue();
-		File tsvFile = Paths.get("C:\\Users\\COMPUTER\\Downloads", tsvFileName).toFile();
+		File tsvFile = tsvFileOpt.get();
 		List<ProteinDataRecord> proteinDataRecords = new ArrayList<>();
 		try {
 			BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(tsvFile)));
@@ -78,17 +69,6 @@ public class DataExtractor {
 			log.fatal("Could NOT delete TSV file '{}'", tsvFile.toPath().toString());
 			throw new CouldNotDeleteTsvFileException(tsvFile.toPath().toString());
 		}
-	}
-
-	private Optional<URI> convertToUri(String tsvDownloadLink) {
-		URI uri = null;
-		try {
-			uri = new URI(tsvDownloadLink);
-		} catch (URISyntaxException e) {
-			log.debug("Malformed Download link : '{}'", tsvDownloadLink);
-			return Optional.empty();
-		}
-		return Optional.ofNullable(uri);
 	}
 
 }

@@ -3,6 +3,7 @@ package com.sakthi.stringdb.service;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
@@ -20,6 +21,7 @@ import com.sakthi.stringdb.repository.OrganismRepository;
 public class OrganismService {
 
 	@Autowired(required = true)
+	@Qualifier("organismName")
 	private String organismName;
 
 	private Organism organism;

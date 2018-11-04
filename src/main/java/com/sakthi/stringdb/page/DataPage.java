@@ -7,6 +7,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
@@ -27,8 +28,9 @@ public class DataPage extends StringDbPage {
 	@Autowired
 	private ProteinService proteinService;
 
-	public DataPage(FirefoxDriver d, String organism, String jsClickElement) {
-		super(d, organism, jsClickElement);
+	public DataPage(FirefoxDriver d, @Qualifier("organismName") String organismName,
+			@Qualifier("jsClickElement") String jsClickElement) {
+		super(d, organismName, jsClickElement);
 	}
 
 	public void extractData(String proteinName) {
@@ -49,7 +51,6 @@ public class DataPage extends StringDbPage {
 				log.debug("Node {} : {}", index, pairedProteinName);
 				proteinService.addOrderedPair(organismName, proteinName, pairedProteinName);
 			}
-			log.debug("About to click export button");
 			WebElement exportButton = d.findElementByCssSelector("#bottom_page_selector_table");
 			d.executeScript(jsClickElement, exportButton);
 			WebElement downloadLinkElement = d.findElementByCssSelector(

@@ -31,4 +31,10 @@ public class OrganismProteinService {
 		return orgPrtRepo.save(new OrganismProtein(organism, protein));
 	}
 
+	@Transactional(readOnly = true)
+	public boolean proteinAlreadyExists(String organismName, String proteinName) {
+		QOrganismProtein qop = QOrganismProtein.organismProtein;
+		return orgPrtRepo.exists(qop.protein.name.eq(proteinName).and(qop.organism.name.eq(organismName)));
+	}
+
 }

@@ -16,6 +16,7 @@ import com.sakthi.stringdb.exception.NotThisPageException;
 import com.sakthi.stringdb.page.DataPage;
 import com.sakthi.stringdb.page.MatchChoosePage;
 import com.sakthi.stringdb.page.SearchPage;
+import com.sakthi.stringdb.service.OrganismProteinService;
 import com.sakthi.stringdb.service.ProteinService;
 
 import lombok.extern.log4j.Log4j2;
@@ -35,6 +36,9 @@ public class StringDbWebBrowser implements ApplicationRunner {
 
 	@Autowired
 	private ProteinService proteinService;
+
+	@Autowired
+	private OrganismProteinService organismProteinService;
 
 	@Autowired
 	private FirefoxOptions firefoxOptions;
@@ -58,13 +62,13 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		FirefoxDriver d = new FirefoxDriver(firefoxOptions);
 		d.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		genericAppCtx.registerBean(FirefoxDriver.class, () -> d);
-		genericAppCtx.registerBean(ORGANISM_PROPERTY, String.class, () -> organismName);
+		genericAppCtx.registerBean("organismName", String.class, () -> organismName);
 		genericAppCtx.registerBean("jsClickElement", String.class, () -> "arguments[0].click();");
 		SearchPage searchPage = genericAppCtx.getBean(SearchPage.class);
 		MatchChoosePage matchChoosePage = genericAppCtx.getBean(MatchChoosePage.class);
 		DataPage dataPage = genericAppCtx.getBean(DataPage.class);
 		Optional<String> nextProteinNameOpt = null;
-		if (proteinService.proteinAlreadyExists(proteinName)) {
+		if (organismProteinService.proteinAlreadyExists(organismName, proteinName)) {
 			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
 		} else {
 			nextProteinNameOpt = Optional.of(proteinName);

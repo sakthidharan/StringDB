@@ -140,10 +140,4 @@ public class ProteinService {
 		}
 	}
 
-	@Transactional(readOnly = true)
-	public boolean proteinAlreadyExists(String proteinName) {
-		QProtein qp = QProtein.protein;
-		return proteinRepo.exists(qp.name.eq(proteinName));
-	}
-
 }

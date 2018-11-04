@@ -10,9 +10,9 @@ public abstract class StringDbPage {
 
 	protected String jsClickElement;
 
-	public StringDbPage(FirefoxDriver d, String organism, String jsClickElement) {
+	public StringDbPage(FirefoxDriver d, String organismName, String jsClickElement) {
 		this.d = d;
-		this.organismName = organism;
+		this.organismName = organismName;
 		this.jsClickElement = jsClickElement;
 	}
 }
