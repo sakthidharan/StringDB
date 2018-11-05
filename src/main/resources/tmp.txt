@@ -11,3 +11,13 @@ too many hits ...
 
 Sorry, your query 'pfkB' resulted in too many matches (> 2000).
 Please enter a more restrictive query or select an organism within which you want to search.
+
+#species_text_single_identifier
+
+#speciesList_single_identifier > option:nth-child(1154)
+
+#speciesList_single_identifier
+#speciesList_single_identifier > option:nth-child(1154)
+83332
+
+#speciesFloatingDiv_single_identifier > div:nth-child(1) > button:nth-child(5)
