@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.sakthi.stringdb.exception.NotThisPageException;
-
 import lombok.extern.log4j.Log4j2;
 
 @Lazy
@@ -23,10 +21,6 @@ public class SearchPage extends StringDbPage {
 
 	public void search(String proteinName) {
 		waitUntilFullPageIsLoaded();
-		String searchPageTitleContent = "functional protein association networks";
-		if (!d.getTitle().contains(searchPageTitleContent)) {
-			throw new NotThisPageException("This is not the starting Search page. Protein is " + proteinName);
-		}
 		try {
 			d.findElementByCssSelector("#primary_input\\:single_identifier").sendKeys(proteinName);
 			d.findElementByCssSelector("#species_text_single_identifier").sendKeys(organismName);

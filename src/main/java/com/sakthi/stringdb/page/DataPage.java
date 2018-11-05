@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.sakthi.stringdb.exception.NotThisPageException;
 import com.sakthi.stringdb.service.DataExtractor;
 import com.sakthi.stringdb.service.ProteinService;
 
@@ -35,12 +34,6 @@ public class DataPage extends StringDbPage {
 
 	public void extractData(String proteinName) {
 		waitUntilFullPageIsLoaded();
-		StringBuilder dataPageTitleContent = new StringBuilder();
-		dataPageTitleContent.append(proteinName).append(" protein (").append(organismName)
-				.append(") - STRING interaction network");
-		if (!d.getTitle().contains(dataPageTitleContent.toString())) {
-			throw new NotThisPageException("This is not the DataPage for protein " + proteinName);
-		}
 		try {
 			WebElement nodesContainer = d.findElement(By.cssSelector("#nodes"));
 			log.debug("Got the nodes container");

@@ -24,6 +24,7 @@ public abstract class StringDbPage {
 			try {
 				Thread.sleep(2000);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				log.debug("Thread interrupted while waiting for full page load");
 			}
 		}

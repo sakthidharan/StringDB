@@ -28,6 +28,7 @@ public class StringDbAppCtxBeans {
 		profile.setPreference("browser.download.manager.showAlertOnComplete", false);
 		profile.setPreference("browser.download.manager.closeWhenDone", false);
 		profile.setPreference("browser.download.manager.showWhenStarting", false);
+		profile.setPreference("javascript.enabled", true);
 		profile.setPreference("pdfjs.disabled", true);
 		firefoxOptions.setProfile(profile);
 		return firefoxOptions;

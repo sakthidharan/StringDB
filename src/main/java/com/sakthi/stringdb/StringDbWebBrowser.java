@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.support.GenericApplicationContext;
 
 import com.sakthi.stringdb.exception.ArgumentNotFoundException;
-import com.sakthi.stringdb.exception.NotThisPageException;
 import com.sakthi.stringdb.page.DataPage;
 import com.sakthi.stringdb.page.MatchChoosePage;
 import com.sakthi.stringdb.page.SearchPage;
@@ -41,7 +40,7 @@ public class StringDbWebBrowser implements ApplicationRunner {
 
 	@Autowired
 	private FirefoxOptions firefoxOptions;
-	
+
 	@Value("${firefox.gecko.driver.location}")
 	private String geckoDriverLocation;
 
@@ -74,21 +73,12 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		d.get("https://string-db.org/cgi/input.pl?input_page_show_search=on");
 		while (nextProteinNameOpt.isPresent()) {
 			proteinName = nextProteinNameOpt.get();
-			try {
-				searchPage.search(proteinName);
-				Thread.sleep(1000);
-				matchChoosePage.choose(proteinName);
-				Thread.sleep(1000);
-			} catch (NotThisPageException e) {
-				log.error(e.getMessage());
-			}
-			try {
-				dataPage.extractData(proteinName);
-				Thread.sleep(1000);
-			} catch (NotThisPageException e) {
-				log.error(e.getMessage());
-				break;
-			}
+			searchPage.search(proteinName);
+			Thread.sleep(1000);
+			matchChoosePage.choose(proteinName);
+			Thread.sleep(1000);
+			dataPage.extractData(proteinName);
+			Thread.sleep(1000);
 			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
 		}
 		d.quit();

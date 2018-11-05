@@ -11,8 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import com.sakthi.stringdb.exception.NotThisPageException;
-
 import lombok.extern.log4j.Log4j2;
 
 @Lazy
@@ -27,11 +25,6 @@ public class MatchChoosePage extends StringDbPage {
 
 	public boolean choose(String proteinName) {
 		waitUntilFullPageIsLoaded();
-		StringBuilder matchChoosePageTitleContent = new StringBuilder();
-		matchChoosePageTitleContent.append(proteinName).append(" - STRING protein network");
-		if (!d.getTitle().contains(matchChoosePageTitleContent.toString())) {
-			throw new NotThisPageException("This is not the MatchChoosePage for protein " + proteinName);
-		}
 		boolean matchFound = false;
 		try {
 			WebElement table = d.findElementByCssSelector(".proceed_form_table");
