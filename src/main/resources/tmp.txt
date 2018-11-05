@@ -5,3 +5,9 @@ title of second page : clpC1 - STRING protein network
 In the final page. Title is : clpC1 protein (Mycobacterium tuberculosis H37Rv) - STRING interaction network
 https://string-db.org/cgi/network.pl?taskId=l6bHtipvhhYn
 https://string-db.org/cgi/network.pl?taskId=KRokPsYOH4ny
+
+
+too many hits ...
+
+Sorry, your query 'pfkB' resulted in too many matches (> 2000).
+Please enter a more restrictive query or select an organism within which you want to search.
