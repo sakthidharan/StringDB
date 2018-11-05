@@ -1,23 +1,10 @@
-clpC1
-Mycobacterium tuberculosis H37Rv
-title of first page is : STRING: functional protein association networks
-title of second page : clpC1 - STRING protein network
-In the final page. Title is : clpC1 protein (Mycobacterium tuberculosis H37Rv) - STRING interaction network
-https://string-db.org/cgi/network.pl?taskId=l6bHtipvhhYn
-https://string-db.org/cgi/network.pl?taskId=KRokPsYOH4ny
+start protein name = clpC1
+organism = Mycobacterium tuberculosis H37Rv
 
 
-too many hits ...
+Sorry, STRING did not find a protein called 'RPS9' in the taxon 'Mycobacterium tuberculosis H37Rv'.
 
-Sorry, your query 'pfkB' resulted in too many matches (> 2000).
-Please enter a more restrictive query or select an organism within which you want to search.
+Generally, STRING understands a number of different names/symbols for proteins.
+Here is a selection of typical names: 'YEL036C', 'TRPB_ECOLI', 'trpB', 'ENSP00000249373', 'BRCA1', 'CG11561', 'daf-3', ...
 
-#species_text_single_identifier
-
-#speciesList_single_identifier > option:nth-child(1154)
-
-#speciesList_single_identifier
-#speciesList_single_identifier > option:nth-child(1154)
-83332
-
-#speciesFloatingDiv_single_identifier > div:nth-child(1) > button:nth-child(5)
+Try to identify your protein with a different name/symbol that you might know. Alternatively, you can paste the raw amino-acid sequence of your protein into the input-form, and STRING will try to identify it via a similarity search.
