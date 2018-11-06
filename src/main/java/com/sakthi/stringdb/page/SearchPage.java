@@ -25,7 +25,9 @@ public class SearchPage extends StringDbPage {
 	public boolean search(String proteinName) {
 		waitUntilFullPageIsLoaded();
 		try {
-			d.findElementByCssSelector("#primary_input\\:single_identifier").sendKeys(proteinName);
+			WebElement prtNameInputTextBox = d.findElementByCssSelector("#primary_input\\:single_identifier");
+			prtNameInputTextBox.clear();
+			prtNameInputTextBox.sendKeys(proteinName);
 			d.findElementByCssSelector("#organism_text_input_single_identifier > div:nth-child(2) > div:nth-child(2)")
 					.click();// drop down click
 			WebElement organismInputDropDownElement = d.findElementByCssSelector("#speciesList_single_identifier");
@@ -36,12 +38,12 @@ public class SearchPage extends StringDbPage {
 			d.findElementByCssSelector("#input_form_single_identifier").submit();
 			waitUntilFullPageIsLoaded();
 			List<WebElement> elementsInProteinNotFoundPage = d.findElementsByCssSelector("#error_form");
-			if(elementsInProteinNotFoundPage.isEmpty()) {
-				//protein is found
+			if (elementsInProteinNotFoundPage.isEmpty()) {
+				// protein is found
 				return true;
-			}else {
-				//protein not found
-				elementsInProteinNotFoundPage.get(0).click();//click the start over element
+			} else {
+				// protein not found
+				elementsInProteinNotFoundPage.get(0).click();// click the start over element
 				return false;
 			}
 		} catch (NoSuchElementException e) {
