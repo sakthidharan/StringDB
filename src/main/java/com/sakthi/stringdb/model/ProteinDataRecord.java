@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.ForeignKey;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 
 import com.opencsv.bean.CsvBindByName;
 
@@ -12,6 +14,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(uniqueConstraints = @UniqueConstraint(name = "unique_protein_data_record", columnNames = { "organism_protein_id",
+		"automated_textmining", "coexpression", "combined_score", "database_annotated",
+		"experimentally_determined_interaction", "gene_fusion", "homology", "neighborhood_on_chromosome", "node1",
+		"node1external_id", "node1string_internal_id", "node2", "node2external_id", "node2string_internal_id",
+		"phylogenetic_cooccurrence" }))
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
