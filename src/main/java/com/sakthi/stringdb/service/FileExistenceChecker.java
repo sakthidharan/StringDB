@@ -42,6 +42,7 @@ public class FileExistenceChecker {
 			try {
 				Thread.sleep(5000);
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 				log.error("Thread sleep interrupted : '{}'", e.getMessage());
 			}
 			totalWaitTimeSeconds += 5;

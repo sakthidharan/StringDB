@@ -1,5 +1,7 @@
 package com.sakthi.stringdb.page;
 
+import java.util.List;
+
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
@@ -20,7 +22,7 @@ public class SearchPage extends StringDbPage {
 		super(d, organismName, jsClickElement);
 	}
 
-	public void search(String proteinName) {
+	public boolean search(String proteinName) {
 		waitUntilFullPageIsLoaded();
 		try {
 			d.findElementByCssSelector("#primary_input\\:single_identifier").sendKeys(proteinName);
@@ -32,8 +34,19 @@ public class SearchPage extends StringDbPage {
 			d.findElementByCssSelector("#speciesFloatingDiv_single_identifier > div:nth-child(1) > button:nth-child(5)")
 					.click();// after option selected in drop down, click it's own select button
 			d.findElementByCssSelector("#input_form_single_identifier").submit();
+			waitUntilFullPageIsLoaded();
+			List<WebElement> elementsInProteinNotFoundPage = d.findElementsByCssSelector("#error_form");
+			if(elementsInProteinNotFoundPage.isEmpty()) {
+				//protein is found
+				return true;
+			}else {
+				//protein not found
+				elementsInProteinNotFoundPage.get(0).click();//click the start over element
+				return false;
+			}
 		} catch (NoSuchElementException e) {
 			log.error(e.getMessage());
+			return false;
 		}
 	}
 }

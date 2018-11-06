@@ -17,6 +17,7 @@ import com.sakthi.stringdb.page.DataPage;
 import com.sakthi.stringdb.page.MatchChoosePage;
 import com.sakthi.stringdb.page.SearchPage;
 import com.sakthi.stringdb.service.OrganismProteinService;
+import com.sakthi.stringdb.service.ProteinOrderedPairService;
 import com.sakthi.stringdb.service.ProteinService;
 
 import lombok.extern.log4j.Log4j2;
@@ -34,6 +35,9 @@ public class StringDbWebBrowser implements ApplicationRunner {
 
 	@Autowired
 	private ProteinService proteinService;
+
+	@Autowired
+	private ProteinOrderedPairService prtOrdPairService;
 
 	@Autowired
 	private OrganismProteinService organismProteinService;
@@ -73,12 +77,13 @@ public class StringDbWebBrowser implements ApplicationRunner {
 		d.get("https://string-db.org/cgi/input.pl?input_page_show_search=on");
 		while (nextProteinNameOpt.isPresent()) {
 			proteinName = nextProteinNameOpt.get();
-			searchPage.search(proteinName);
-			Thread.sleep(1000);
-			matchChoosePage.choose(proteinName);
-			Thread.sleep(1000);
-			dataPage.extractData(proteinName);
-			Thread.sleep(1000);
+			boolean proteinFound = searchPage.search(proteinName);
+			if (!proteinFound) {
+				prtOrdPairService.markProteinTwoAsInvalid(organismName, proteinName);
+			} else {
+				matchChoosePage.choose(proteinName);
+				dataPage.extractData(proteinName);
+			}
 			nextProteinNameOpt = proteinService.getNextUnexploredProteinName();
 		}
 		d.quit();

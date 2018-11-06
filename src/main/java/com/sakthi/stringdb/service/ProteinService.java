@@ -130,9 +130,11 @@ public class ProteinService {
 		QOrganismProtein qop = QOrganismProtein.organismProtein;
 		QProteinOrderedPair qPair = QProteinOrderedPair.proteinOrderedPair;
 		JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-		Optional<ProteinOrderedPair> proteinOrderedPairOpt = Optional.ofNullable(queryFactory.selectFrom(qPair)
-				.leftJoin(qop).on(qPair.proteinTwo.eq(qop.protein).and(qPair.organism.eq(qop.organism)))
-				.where(qop.protein.isNull().and(qPair.organism.eq(organism))).fetchFirst());
+		Optional<ProteinOrderedPair> proteinOrderedPairOpt = Optional
+				.ofNullable(queryFactory.selectFrom(qPair).leftJoin(qop)
+						.on(qPair.proteinTwo.eq(qop.protein)
+								.and(qPair.organism.eq(qop.organism).and(qPair.proteinTwoValidity.isTrue())))
+						.where(qop.protein.isNull().and(qPair.organism.eq(organism))).fetchFirst());
 		if (proteinOrderedPairOpt.isPresent()) {
 			return Optional.of(proteinOrderedPairOpt.get().getProteinTwo().getName());
 		} else {
