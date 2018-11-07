@@ -13,6 +13,7 @@ import com.opencsv.bean.CsvBindByName;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(name = "unique_protein_data_record", columnNames = { "organism_protein_id",
@@ -22,6 +23,7 @@ import lombok.Setter;
 		"phylogenetic_cooccurrence" }))
 @Getter
 @Setter
+@ToString(includeFieldNames = true)
 @EqualsAndHashCode(callSuper = true)
 public class ProteinDataRecord extends RootModel {
 
