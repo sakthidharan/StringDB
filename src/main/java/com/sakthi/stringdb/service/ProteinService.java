@@ -100,14 +100,14 @@ public class ProteinService {
 		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
 		if (proteinOpt.isPresent()) {
 			OrganismProtein orgPrt = organismProteinService.getOrCreate(organism, proteinOpt.get());
-			for (int i = 1; i <= proteinDataRecords.size(); i++) {
+			for (int i = 0; i < proteinDataRecords.size(); i++) {
 				ProteinDataRecord proteinDataRecord = proteinDataRecords.get(i);
 				proteinDataRecord.setOrganismProtein(orgPrt);
 				try {
 					proteinDataRecordService.save(proteinDataRecord);
-					log.debug("{}) Saved protein data record for organism protein '{}'", i, orgPrt.toString());
+					log.debug("{}) Saved protein data record for organism protein '{}'", i + 1, orgPrt.toString());
 				} catch (DataIntegrityViolationException | PersistenceException e) {
-					log.debug("{}) Protein Data Record '{}' already exists", i, proteinDataRecord.toString());
+					log.debug("{}) Protein Data Record '{}' already exists", i + 1, proteinDataRecord.toString());
 				}
 			}
 		} else {
