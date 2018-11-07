@@ -27,7 +27,6 @@ import com.sakthi.stringdb.model.ProteinOrderedPair;
 import com.sakthi.stringdb.model.QOrganismProtein;
 import com.sakthi.stringdb.model.QProtein;
 import com.sakthi.stringdb.model.QProteinOrderedPair;
-import com.sakthi.stringdb.repository.ProteinDataRecordRepository;
 import com.sakthi.stringdb.repository.ProteinRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -43,9 +42,6 @@ public class ProteinService {
 	private ProteinRepository proteinRepo;
 
 	@Autowired
-	private ProteinDataRecordRepository proteinDataRecRepo;
-
-	@Autowired
 	private TransactionTemplate txnTemplate;
 
 	@Autowired
@@ -56,6 +52,9 @@ public class ProteinService {
 
 	@Autowired
 	private OrganismProteinService organismProteinService;
+
+	@Autowired
+	private ProteinDataRecordService proteinDataRecordService;
 
 	@PersistenceContext
 	private EntityManager entityManager;
@@ -88,11 +87,7 @@ public class ProteinService {
 		} else {
 			proteinTwo = txnTemplate.execute(createProteinTwo);
 		}
-		try {
-			proteinOrderedPairService.create(organism, proteinOne, proteinTwo);
-		} catch (DataIntegrityViolationException | PersistenceException e) {
-			log.debug("Protein Ordered Pair ({},{}) already exists.", proteinOneName, proteinTwoName);
-		}
+		proteinOrderedPairService.create(organism, proteinOne, proteinTwo);
 	}
 
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
@@ -104,20 +99,17 @@ public class ProteinService {
 		QProtein qp = QProtein.protein;
 		Optional<Protein> proteinOpt = proteinRepo.findOne(qp.name.eq(proteinName));
 		if (proteinOpt.isPresent()) {
+			OrganismProtein orgPrt = organismProteinService.getOrCreate(organism, proteinOpt.get());
 			for (ProteinDataRecord proteinDataRecord : proteinDataRecords) {
-				Optional<OrganismProtein> orgPrtOpt = organismProteinService.findByOrganismAndProtein(organism,
-						proteinOpt.get());
-				OrganismProtein orgPrt = null;
-				if (orgPrtOpt.isPresent()) {
-					orgPrt = orgPrtOpt.get();
-				} else {
-					orgPrt = organismProteinService.create(organism, proteinOpt.get());
-				}
 				proteinDataRecord.setOrganismProtein(orgPrt);
-				proteinDataRecRepo.save(proteinDataRecord);
+				try {
+					proteinDataRecordService.save(proteinDataRecord);
+				} catch (DataIntegrityViolationException | PersistenceException e) {
+					log.debug("Protein Data Record '{}' already exists", proteinDataRecord.toString());
+				}
 			}
 		} else {
-			log.error("Protein '{}' Not found when it's data record was about to be saved.", proteinName);
+			log.fatal("Protein '{}' Not found when it's data record was about to be saved.", proteinName);
 		}
 	}
 
@@ -130,14 +122,14 @@ public class ProteinService {
 		QOrganismProtein qop = QOrganismProtein.organismProtein;
 		QProteinOrderedPair qPair = QProteinOrderedPair.proteinOrderedPair;
 		JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-		Optional<ProteinOrderedPair> proteinOrderedPairOpt = Optional
-				.ofNullable(queryFactory.selectFrom(qPair).leftJoin(qop)
-						.on(qPair.proteinTwo.eq(qop.protein)
-								.and(qPair.organism.eq(qop.organism).and(qPair.proteinTwoValidity.isTrue())))
-						.where(qop.protein.isNull().and(qPair.organism.eq(organism))).fetchFirst());
+		Optional<ProteinOrderedPair> proteinOrderedPairOpt = Optional.ofNullable(queryFactory.selectFrom(qPair)
+				.leftJoin(qop).on(qPair.proteinTwo.eq(qop.protein).and(qPair.organism.eq(qop.organism)))
+				.where(qop.protein.isNull().and(qPair.organism.eq(organism).and(qPair.proteinTwoValidity.isTrue())))
+				.fetchFirst());
 		if (proteinOrderedPairOpt.isPresent()) {
 			return Optional.of(proteinOrderedPairOpt.get().getProteinTwo().getName());
 		} else {
+			log.debug("All protein twos of ordered pair have been be explored.");
 			return Optional.empty();
 		}
 	}

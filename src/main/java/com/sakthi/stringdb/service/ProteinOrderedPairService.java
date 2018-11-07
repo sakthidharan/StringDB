@@ -36,6 +36,14 @@ public class ProteinOrderedPairService {
 
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
 	public void create(Organism organism, Protein proteinOne, Protein proteinTwo) {
+		QProteinOrderedPair qpop = QProteinOrderedPair.proteinOrderedPair;
+		Optional<ProteinOrderedPair> popOpt = proteinOrderedPairRepo.findOne(
+				qpop.organism.eq(organism).and(qpop.proteinOne.eq(proteinOne).and(qpop.proteinTwo.eq(proteinTwo))));
+		if (popOpt.isPresent()) {
+			log.debug("Protein Ordered Pair ({},{}) already exists for organism {}", proteinOne.getName(),
+					proteinTwo.getName(), organism.getName());
+			return;
+		}
 		proteinOrderedPairRepo.save(new ProteinOrderedPair(organism, proteinOne, proteinTwo, true));
 	}
 

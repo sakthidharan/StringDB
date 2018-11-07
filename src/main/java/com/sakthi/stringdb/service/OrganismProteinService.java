@@ -20,15 +20,16 @@ public class OrganismProteinService {
 	@Autowired
 	private OrganismProteinRepository orgPrtRepo;
 
-	@Transactional(readOnly = true)
-	public Optional<OrganismProtein> findByOrganismAndProtein(Organism organism, Protein protein) {
-		QOrganismProtein qop = QOrganismProtein.organismProtein;
-		return orgPrtRepo.findOne(qop.organism.eq(organism).and(qop.protein.eq(protein)));
-	}
-
 	@Transactional(readOnly = false, rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-	public OrganismProtein create(Organism organism, Protein protein) {
-		return orgPrtRepo.save(new OrganismProtein(organism, protein));
+	public OrganismProtein getOrCreate(Organism organism, Protein protein) {
+		QOrganismProtein qop = QOrganismProtein.organismProtein;
+		Optional<OrganismProtein> orgPrtOpt = orgPrtRepo
+				.findOne(qop.organism.eq(organism).and(qop.protein.eq(protein)));
+		if (orgPrtOpt.isPresent()) {
+			return orgPrtOpt.get();
+		} else {
+			return orgPrtRepo.save(new OrganismProtein(organism, protein));
+		}
 	}
 
 	@Transactional(readOnly = true)
