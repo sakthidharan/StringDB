@@ -49,7 +49,7 @@ public class MatchChoosePage extends StringDbPage {
 				log.error("No match found in MatchChoosePage for protein {} in organism {}", proteinName, organismName);
 			}
 		} catch (NoSuchElementException e) {
-			log.debug(e.getMessage());
+			//remain silent
 		}
 		return matchFound;
 	}

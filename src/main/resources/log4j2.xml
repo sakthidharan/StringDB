@@ -10,7 +10,7 @@
 			follow="true">
 			<PatternLayout pattern="${LOG_PATTERN}" />
 		</Console>
-		<File name="logFile" fileName="logs/app.log">
+		<File name="logFile" fileName="logs/app.log" append="false">
 			<PatternLayout>
 				<Pattern>${LOG_PATTERN}</Pattern>
 			</PatternLayout>
